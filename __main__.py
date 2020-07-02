@@ -11,8 +11,8 @@ def main():
         print(f'Response: {get_state_response}')
         print()
         print(f'Payment id: {payment_id}')
-    except:
-        process.WebError
+    except process.WebError:
+        raise Exception
 
 if __name__ == '__main__':
     main()

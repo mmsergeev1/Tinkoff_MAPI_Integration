@@ -26,14 +26,14 @@ def send_eacq_init():
     answer_code, init_response = eacq.init(order_id)
 
     if answer_code.status_code == 200 and init_response["Success"] and init_response["ErrorCode"] == '0':
-        payment_url = init_response["PaymentUrl"]
+        payment_url = init_response["PaymentURL"]
         eacq.set_status(init_response["Status"])
         payment_id = init_response["PaymentId"]
         webbrowser.open_new(payment_url)
         time.sleep(20)
 
         get_state_response = eacq.get_state(payment_id)
-        eacq.set_status(get_state_response["Status"])
+        eacq.set_status(get_state_response[1]["Status"])
 
         return payment_id, get_state_response
 
