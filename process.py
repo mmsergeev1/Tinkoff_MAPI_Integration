@@ -1,4 +1,3 @@
-import json
 import random
 import time
 import string
@@ -16,13 +15,13 @@ class RequestError(Exception):
     pass
 
 
-def gen_oreder_id(order_id_length=8):
+def gen_order_id(order_id_length=8):
     letters = string.ascii_letters + '1234567890'
     return ''.join(random.choice(letters) for i in range(order_id_length))
 
 
 def send_eacq_init():
-    order_id = gen_oreder_id()
+    order_id = gen_order_id()
     answer_code, init_response = eacq.init(order_id)
 
     if answer_code.status_code == 200 and init_response["Success"] and init_response["ErrorCode"] == '0':
