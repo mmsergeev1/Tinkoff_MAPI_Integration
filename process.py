@@ -39,4 +39,5 @@ def send_eacq_init():
     elif answer_code.status_code != 200:
         raise WebError(f"Код ответа от сервера неуспешный: {answer_code}")
     elif not init_response["Success"] or init_response["ErrorCode"] != '0':
-        raise RequestError(f"Запрос отбился ошибкой, код: {init_response['ErrorCode']}, сообщение: {init_response['Message']}")
+        raise RequestError(f"Запрос отбился ошибкой, код: {init_response['ErrorCode']}, "
+                           f"сообщение: {init_response['Message']}")
