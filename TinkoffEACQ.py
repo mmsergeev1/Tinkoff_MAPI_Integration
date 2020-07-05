@@ -9,9 +9,6 @@ prod_environment_url = 'https://securepay.tinkoff.ru/v2/'
 test_terminal_token_password = 'TinkoffBankTest'
 
 
-# Todo: delete code copypastings
-
-
 def get_token(request_dict, token_password):
     request_dict["Password"] = token_password
     concatenated_token_string = ''
@@ -23,14 +20,22 @@ def get_token(request_dict, token_password):
 
 
 def send_request(request_dict, request_url):
-    reqeust_json = json.dumps(request_dict)
+    request_json = json.dumps(request_dict)
 
     headers = {'Content-type': 'application/json',
                'Content-Encoding': 'utf-8'}
 
-    server_answer = requests.post(request_url, data=reqeust_json, headers=headers)
+    server_answer = requests.post(request_url, data=request_json, headers=headers)
     response = server_answer.json()
     return server_answer, response
+
+
+class WebError(Exception):
+    pass
+
+
+class RequestError(Exception):
+    pass
 
 
 class EACQ:
@@ -43,12 +48,6 @@ class EACQ:
         self.description = ""
         self.status = 'None'
         self.pay_type = 'O'
-
-    class WebError(Exception):
-        pass
-
-    class RequestError(Exception):
-        pass
 
     def set_status(self, new_status):
         self.status = new_status
@@ -120,7 +119,7 @@ class EACQ:
 
         if two_step:
             self.pay_type = 'T'
-        else:
+        elif not two_step:
             self.pay_type = 'O'
 
         request_dict = {
@@ -174,7 +173,7 @@ class EACQ:
             response_list = send_request(request_dict, request_url)
             return response_list
         else:
-            pass  # Todo: make an exception on confirming the confirmed operation
+            raise RequestError(f"Status is not valid for Confirm. Status: {self.status}.")
 
     def cancel(self, payment_id):
         if self.status in ['NEW', 'AUTHORIZED', 'CONFIRMED']:
@@ -195,4 +194,4 @@ class EACQ:
             return response_list
 
         else:
-            pass  # Todo: error on cancelling cancelled operation
+            raise RequestError(f"Status is not valid for Cancel. Status: {self.status}.")
