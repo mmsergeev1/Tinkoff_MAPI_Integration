@@ -38,6 +38,10 @@ class RequestError(Exception):
     pass
 
 
+class PaymentStatusError(Exception):
+    pass
+
+
 class EACQ:
     def __init__(self):
         self.terminal_key = ''
@@ -60,8 +64,8 @@ class EACQ:
         self.terminal_key = new_terminal_key
         self.token_password = new_token_password
 
-    def update_status(self, new_status):
-        self.status = new_status
+    def get_status(self):
+        return self.status
 
     def set_description(self, value=f"Тестовый заказ от {getpass.getuser()}"):
         self.description = value
@@ -125,7 +129,8 @@ class EACQ:
         request_dict = {
             "TerminalKey": self.terminal_key,
             "Amount": amount,
-            "OrderId": order_id
+            "OrderId": order_id,
+            "PayType": self.pay_type
         }
 
         if self.description:
@@ -173,7 +178,7 @@ class EACQ:
             response_list = send_request(request_dict, request_url)
             return response_list
         else:
-            raise RequestError(f"Status is not valid for Confirm. Status: {self.status}.")
+            raise PaymentStatusError(f"Status is not valid for Confirm. Status: {self.status}.")
 
     def cancel(self, payment_id):
         if self.status in ['NEW', 'AUTHORIZED', 'CONFIRMED']:
@@ -194,4 +199,4 @@ class EACQ:
             return response_list
 
         else:
-            raise RequestError(f"Status is not valid for Cancel. Status: {self.status}.")
+            raise PaymentStatusError(f"Status is not valid for Cancel. Status: {self.status}.")
