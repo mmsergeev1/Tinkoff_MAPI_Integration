@@ -49,3 +49,17 @@ def send_eacq_confirm(payment_id):
     elif not confirm_response["Success"] or confirm_response["ErrorCode"] != '0':
         raise RequestError(f"Запрос отбился ошибкой, код: {confirm_response['ErrorCode']}, "
                            f"сообщение: {confirm_response['Message']}")
+
+
+def send_eacq_cancel(payment_id):
+    answer_code, cancel_response = eacq.cancel(payment_id)
+    if answer_code.status_code == 200 and cancel_response["Success"] and cancel_response["ErrorCode"] == '0':
+        eacq.set_status(cancel_response["Status"])
+
+        return cancel_response
+
+    elif answer_code.status_code != 200:
+        raise WebError(f"Код ответа от сервера неуспешный: {answer_code}")
+    elif not cancel_response["Success"] or cancel_response["ErrorCode"] != '0':
+        raise RequestError(f"Запрос отбился ошибкой, код: {cancel_response['ErrorCode']}, "
+                           f"сообщение: {cancel_response['Message']}")

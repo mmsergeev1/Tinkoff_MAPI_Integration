@@ -24,6 +24,21 @@ def main():
         except process.RequestError:
             raise process.RequestError
 
+    status = process.eacq.get_status()
+    print(f"Status: {status}")
+    if status == 'CONFIRMED':
+        try:
+            print('Cancelling')
+            cancel_response = process.send_eacq_cancel(payment_id)
+            print(f"Response: {cancel_response}")
+        except process.WebError:
+            raise process.WebError
+        except process.RequestError:
+            raise process.RequestError
+
+    status = process.eacq.get_status()
+    print(f"Status: {status}")
+
 
 if __name__ == '__main__':
     main()
