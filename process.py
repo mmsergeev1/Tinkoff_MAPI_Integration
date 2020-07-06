@@ -1,12 +1,12 @@
 import random
 import time
 import string
-import TinkoffEACQ
+import MAPI_EACQ
 import webbrowser
 
-eacq = TinkoffEACQ.EACQ()
-WebError = TinkoffEACQ.WebError
-RequestError = TinkoffEACQ.RequestError
+eacq = MAPI_EACQ.EACQ()
+WebError = MAPI_EACQ.WebError
+RequestError = MAPI_EACQ.RequestError
 
 
 def gen_order_id(order_id_length=8):
