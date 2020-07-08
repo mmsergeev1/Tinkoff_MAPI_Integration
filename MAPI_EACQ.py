@@ -115,7 +115,7 @@ class EACQ:
         }
 
     def init(self, order_id, terminal_key=test_terminal_key, token_password=test_terminal_token_password,
-             amount=100, url=test_environment_url, two_step=False, init_token_required=False):
+             amount=100, url=test_environment_url, two_step=False, init_token_required=False, recurrent=False):
 
         self.set_terminal(terminal_key, token_password)
 
@@ -132,6 +132,9 @@ class EACQ:
             "OrderId": order_id,
             "PayType": self.pay_type
         }
+
+        if recurrent:
+            request_dict["Recurrent"] = 'Y'
 
         if self.description:
             request_dict["Description"] = self.description
@@ -180,7 +183,7 @@ class EACQ:
         else:
             raise PaymentStatusError(f"Status is not valid for Confirm. Status: {self.status}.")
 
-    def cancel(self, payment_id):
+    def cancel(self, payment_id, cancel_amount, full_cancel=True):
         if self.status in ['NEW', 'AUTHORIZED', 'CONFIRMED']:
             request_url = self.used_url + 'Cancel'
 
@@ -189,14 +192,37 @@ class EACQ:
                 "PaymentId": payment_id
             }
 
+            if not full_cancel:
+                request_dict["Amount"] = cancel_amount
+
             token = get_token(request_dict, self.token_password)
             request_dict["Token"] = token
 
-            if self.receipt:
-                request_dict["Receipt"] = self.receipt
+            if not full_cancel:
+                if self.receipt:
+                    request_dict["Receipt"] = self.receipt
 
             response_list = send_request(request_dict, request_url)
             return response_list
 
         else:
             raise PaymentStatusError(f"Status is not valid for Cancel. Status: {self.status}.")
+
+    def charge(self, payment_id, rebill_id):
+        if self.status in ['NEW']:
+            request_url = self.used_url + 'Charge'
+
+            request_dict = {
+                "TerminalKey": self.terminal_key,
+                "PaymentId": payment_id,
+                "RebillId": rebill_id
+            }
+
+            token = get_token(request_dict, self.token_password)
+            request_dict["Token"] = token
+
+            response_list = send_request(request_dict, request_url)
+
+            return response_list
+        elif self.status not in ['NEW']:
+            raise PaymentStatusError(f"Status is not valid for Charge. Status: {self.status}.")
