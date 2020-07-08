@@ -5,8 +5,6 @@ import MAPI_EACQ
 import webbrowser
 
 eacq = MAPI_EACQ.EACQ()
-WebError = MAPI_EACQ.WebError
-RequestError = MAPI_EACQ.RequestError
 
 
 def gen_order_id(order_id_length=8):
@@ -16,9 +14,11 @@ def gen_order_id(order_id_length=8):
 
 def send_eacq_init():
     order_id = gen_order_id()
-    answer_code, init_response = eacq.init(order_id, two_step=True)
 
-    if answer_code.status_code == 200 and init_response["Success"] and init_response["ErrorCode"] == '0':
+    try:
+
+        answer_code, init_response = eacq.init(order_id, two_step=True)
+
         payment_url = init_response["PaymentURL"]
         eacq.set_status(init_response["Status"])
         payment_id = init_response["PaymentId"]
@@ -30,36 +30,42 @@ def send_eacq_init():
 
         return payment_id, get_state_response
 
-    elif answer_code.status_code != 200:
-        raise WebError(f"Код ответа от сервера неуспешный: {answer_code}")
-    elif not init_response["Success"] or init_response["ErrorCode"] != '0':
-        raise RequestError(f"Запрос отбился ошибкой, код: {init_response['ErrorCode']}, "
-                           f"сообщение: {init_response['Message']}")
+    except MAPI_EACQ.WebError:
+        raise MAPI_EACQ.WebError
+    except MAPI_EACQ.RequestError:
+        raise MAPI_EACQ.RequestError
+    except MAPI_EACQ.PaymentStatusError:
+        raise MAPI_EACQ.PaymentStatusError
 
 
 def send_eacq_confirm(payment_id):
-    answer_code, confirm_response = eacq.confirm(payment_id)
-    if answer_code.status_code == 200 and confirm_response["Success"] and confirm_response["ErrorCode"] == '0':
+
+    try:
+
+        answer_code, confirm_response = eacq.confirm(payment_id)
         eacq.set_status(confirm_response["Status"])
 
         return confirm_response
 
-    elif answer_code.status_code != 200:
-        raise WebError(f"Код ответа от сервера неуспешный: {answer_code}")
-    elif not confirm_response["Success"] or confirm_response["ErrorCode"] != '0':
-        raise RequestError(f"Запрос отбился ошибкой, код: {confirm_response['ErrorCode']}, "
-                           f"сообщение: {confirm_response['Message']}")
+    except MAPI_EACQ.WebError:
+        raise MAPI_EACQ.WebError
+    except MAPI_EACQ.RequestError:
+        raise MAPI_EACQ.RequestError
+    except MAPI_EACQ.PaymentStatusError:
+        raise MAPI_EACQ.PaymentStatusError
 
 
-def send_eacq_cancel(payment_id):
-    answer_code, cancel_response = eacq.cancel(payment_id)
-    if answer_code.status_code == 200 and cancel_response["Success"] and cancel_response["ErrorCode"] == '0':
+def send_eacq_cancel(payment_id, full_cancel=True):
+    try:
+
+        answer_code, cancel_response = eacq.cancel(payment_id)
         eacq.set_status(cancel_response["Status"])
 
         return cancel_response
 
-    elif answer_code.status_code != 200:
-        raise WebError(f"Код ответа от сервера неуспешный: {answer_code}")
-    elif not cancel_response["Success"] or cancel_response["ErrorCode"] != '0':
-        raise RequestError(f"Запрос отбился ошибкой, код: {cancel_response['ErrorCode']}, "
-                           f"сообщение: {cancel_response['Message']}")
+    except MAPI_EACQ.WebError:
+        raise MAPI_EACQ.WebError
+    except MAPI_EACQ.RequestError:
+        raise MAPI_EACQ.RequestError
+    except MAPI_EACQ.PaymentStatusError:
+        raise MAPI_EACQ.PaymentStatusError

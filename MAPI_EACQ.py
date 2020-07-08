@@ -27,7 +27,13 @@ def send_request(request_dict, request_url):
 
     server_answer = requests.post(request_url, data=request_json, headers=headers)
     response = server_answer.json()
-    return server_answer, response
+    if server_answer.status_code == 200 and response["Success"] and response["ErrorCode"] == '0':
+        return server_answer, response
+    elif server_answer.status_code != 200:
+        raise WebError(f"HTTPS reason code is not successful. {server_answer}")
+    elif not response["Success"] or response["ErrorCode"] != '0' or response["Message"] != 'OK':
+        raise RequestError(f"Request is not successful. {response}")
+
 
 
 class WebError(Exception):
@@ -183,7 +189,7 @@ class EACQ:
         else:
             raise PaymentStatusError(f"Status is not valid for Confirm. Status: {self.status}.")
 
-    def cancel(self, payment_id, cancel_amount, full_cancel=True):
+    def cancel(self, payment_id, cancel_amount=0, full_cancel=True):
         if self.status in ['NEW', 'AUTHORIZED', 'CONFIRMED']:
             request_url = self.used_url + 'Cancel'
 
