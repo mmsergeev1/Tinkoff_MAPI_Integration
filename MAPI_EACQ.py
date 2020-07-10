@@ -1,4 +1,5 @@
 import getpass
+import logging
 import hashlib
 import json
 import requests
@@ -7,6 +8,10 @@ test_terminal_key = 'TinkoffBankTest'
 test_environment_url = 'https://rest-api-test.tinkoff.ru/v2/'
 prod_environment_url = 'https://securepay.tinkoff.ru/v2/'
 test_terminal_token_password = 'TinkoffBankTest'
+
+log_file_name = 'payment.log'
+logging.basicConfig(filename=log_file_name, filemode='a', format='%(name)s - %(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%d-%b-%y %H:%M:%S')
 
 
 def get_token(request_dict, token_password):
@@ -34,6 +39,15 @@ def send_request(request_dict, request_url):
     elif not response["Success"] or response["ErrorCode"] != '0' or response["Message"] != 'OK':
         raise RequestError(f"Request is not successful. {response}")
 
+
+def log_into_file(request_dict, answer_code, response, method_name):
+    logging.basicConfig(filename=log_file_name, filemode='a',
+                        format='%(name)s - %(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    logging.debug(f"Method: {method_name}")
+    logging.debug(f"Request: {request_dict}")
+    logging.debug(f"Answer code: {answer_code}")
+    logging.debug(f"Response: {response}")
+    # Todo: realize changing logging level
 
 
 class WebError(Exception):
@@ -156,6 +170,9 @@ class EACQ:
             request_dict["Receipt"] = self.receipt
 
         answer_code, response = send_request(request_dict, request_url)
+
+        log_into_file(request_dict, answer_code, response, 'Init')
+
         return answer_code, response
 
     def get_state(self, payment_id):
@@ -170,6 +187,9 @@ class EACQ:
         request_dict["Token"] = token
 
         response_list = send_request(request_dict, request_url)
+
+        log_into_file(request_dict, response_list[0], response_list[1], 'GetState')
+
         return response_list
 
     def confirm(self, payment_id):
@@ -185,6 +205,9 @@ class EACQ:
             request_dict["Token"] = token
 
             response_list = send_request(request_dict, request_url)
+
+            log_into_file(request_dict, response_list[0], response_list[1], 'Confirm')
+
             return response_list
         else:
             raise PaymentStatusError(f"Status is not valid for Confirm. Status: {self.status}.")
@@ -209,6 +232,9 @@ class EACQ:
                     request_dict["Receipt"] = self.receipt
 
             response_list = send_request(request_dict, request_url)
+
+            log_into_file(request_dict, response_list[0], response_list[1], 'Cancel')
+
             return response_list
 
         else:
@@ -228,6 +254,8 @@ class EACQ:
             request_dict["Token"] = token
 
             response_list = send_request(request_dict, request_url)
+
+            log_into_file(request_dict, response_list[0], response_list[1], 'Charge')
 
             return response_list
         elif self.status not in ['NEW']:
