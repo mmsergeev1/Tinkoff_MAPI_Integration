@@ -1,5 +1,5 @@
 import getpass
-import logging
+import logger
 import hashlib
 import json
 import requests
@@ -8,8 +8,6 @@ test_terminal_key = 'TinkoffBankTest'
 test_environment_url = 'https://rest-api-test.tinkoff.ru/v2/'
 prod_environment_url = 'https://securepay.tinkoff.ru/v2/'
 test_terminal_token_password = 'TinkoffBankTest'
-
-log_file_name = 'payment.log'
 
 
 def get_token(request_dict, token_password):
@@ -36,16 +34,6 @@ def send_request(request_dict, request_url):
         raise WebError(f"HTTPS reason code is not successful. {server_answer}")
     elif not response["Success"] or response["ErrorCode"] != '0' or response["Message"] != 'OK':
         raise RequestError(f"Request is not successful. {response}")
-
-
-def log_into_file(request_dict, answer_code, response, method_name):
-    logging.basicConfig(filename=log_file_name, filemode='a',
-                        format='%(name)s - %(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
-    logging.debug(f"Method: {method_name}")
-    logging.debug(f"Request: {request_dict}")
-    logging.debug(f"Answer code: {answer_code}")
-    logging.debug(f"Response: {response}")
-    # Todo: realize changing logging level
 
 
 class WebError(Exception):
@@ -169,7 +157,7 @@ class EACQ:
 
         answer_code, response = send_request(request_dict, request_url)
 
-        log_into_file(request_dict, answer_code, response, 'Init')
+        logger.log_into_file(answer_code, response, 'Init', level='Debug', request_dict=request_dict)
 
         return answer_code, response
 
@@ -186,7 +174,7 @@ class EACQ:
 
         response_list = send_request(request_dict, request_url)
 
-        log_into_file(request_dict, response_list[0], response_list[1], 'GetState')
+        logger.log_into_file(response_list[0], response_list[1], 'GetState',  level='Debug', request_dict=request_dict)
 
         return response_list
 
@@ -204,7 +192,8 @@ class EACQ:
 
             response_list = send_request(request_dict, request_url)
 
-            log_into_file(request_dict, response_list[0], response_list[1], 'Confirm')
+            logger.log_into_file(response_list[0], response_list[1], 'Confirm',  level='Debug',
+                                 request_dict=request_dict)
 
             return response_list
         else:
@@ -231,7 +220,8 @@ class EACQ:
 
             response_list = send_request(request_dict, request_url)
 
-            log_into_file(request_dict, response_list[0], response_list[1], 'Cancel')
+            logger.log_into_file(response_list[0], response_list[1], 'Cancel',  level='Debug',
+                                 request_dict=request_dict)
 
             return response_list
 
@@ -253,7 +243,8 @@ class EACQ:
 
             response_list = send_request(request_dict, request_url)
 
-            log_into_file(request_dict, response_list[0], response_list[1], 'Charge')
+            logger.log_into_file(response_list[0], response_list[1], 'Charge',  level='Debug',
+                                 request_dict=request_dict)
 
             return response_list
         elif self.status not in ['NEW']:
