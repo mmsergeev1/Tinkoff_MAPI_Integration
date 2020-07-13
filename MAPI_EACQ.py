@@ -10,8 +10,6 @@ prod_environment_url = 'https://securepay.tinkoff.ru/v2/'
 test_terminal_token_password = 'TinkoffBankTest'
 
 log_file_name = 'payment.log'
-logging.basicConfig(filename=log_file_name, filemode='a', format='%(name)s - %(asctime)s - %(levelname)s - %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S')
 
 
 def get_token(request_dict, token_password):
