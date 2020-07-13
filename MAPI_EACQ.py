@@ -1,4 +1,5 @@
 import getpass
+import logger
 import hashlib
 import json
 import requests
@@ -33,7 +34,6 @@ def send_request(request_dict, request_url):
         raise WebError(f"HTTPS reason code is not successful. {server_answer}")
     elif not response["Success"] or response["ErrorCode"] != '0' or response["Message"] != 'OK':
         raise RequestError(f"Request is not successful. {response}")
-
 
 
 class WebError(Exception):
@@ -156,6 +156,9 @@ class EACQ:
             request_dict["Receipt"] = self.receipt
 
         answer_code, response = send_request(request_dict, request_url)
+
+        logger.log_into_file(answer_code, response, 'Init', level='Debug', request_dict=request_dict)
+
         return answer_code, response
 
     def get_state(self, payment_id):
@@ -170,6 +173,9 @@ class EACQ:
         request_dict["Token"] = token
 
         response_list = send_request(request_dict, request_url)
+
+        logger.log_into_file(response_list[0], response_list[1], 'GetState',  level='Debug', request_dict=request_dict)
+
         return response_list
 
     def confirm(self, payment_id):
@@ -185,6 +191,10 @@ class EACQ:
             request_dict["Token"] = token
 
             response_list = send_request(request_dict, request_url)
+
+            logger.log_into_file(response_list[0], response_list[1], 'Confirm',  level='Debug',
+                                 request_dict=request_dict)
+
             return response_list
         else:
             raise PaymentStatusError(f"Status is not valid for Confirm. Status: {self.status}.")
@@ -209,6 +219,10 @@ class EACQ:
                     request_dict["Receipt"] = self.receipt
 
             response_list = send_request(request_dict, request_url)
+
+            logger.log_into_file(response_list[0], response_list[1], 'Cancel',  level='Debug',
+                                 request_dict=request_dict)
+
             return response_list
 
         else:
@@ -228,6 +242,9 @@ class EACQ:
             request_dict["Token"] = token
 
             response_list = send_request(request_dict, request_url)
+
+            logger.log_into_file(response_list[0], response_list[1], 'Charge',  level='Debug',
+                                 request_dict=request_dict)
 
             return response_list
         elif self.status not in ['NEW']:

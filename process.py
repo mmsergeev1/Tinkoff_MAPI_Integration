@@ -1,3 +1,4 @@
+import logger
 import random
 import time
 import string
@@ -31,7 +32,7 @@ def send_eacq_init():
         return payment_id, get_state_response
 
     except MAPI_EACQ.WebError:
-        raise MAPI_EACQ.WebError
+        logger.log_into_file('Init', 'Error', message='Connection error')
     except MAPI_EACQ.RequestError:
         raise MAPI_EACQ.RequestError
     except MAPI_EACQ.PaymentStatusError:
@@ -55,10 +56,10 @@ def send_eacq_confirm(payment_id):
         raise MAPI_EACQ.PaymentStatusError
 
 
-def send_eacq_cancel(payment_id, full_cancel=True):
+def send_eacq_cancel(payment_id):
     try:
 
-        answer_code, cancel_response = eacq.cancel(payment_id)
+        answer_code, cancel_response = eacq.cancel(payment_id, full_cancel=True)
         eacq.set_status(cancel_response["Status"])
 
         return cancel_response
