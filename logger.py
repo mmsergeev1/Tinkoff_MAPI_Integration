@@ -6,17 +6,8 @@ logging.basicConfig(level=logging.DEBUG, filename=log_file_name, filemode='a',
                         format='%(name)s - %(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 
-def log_exception(message="Exception occurred", exc_info=True, level="Error"):
-    if level == 'Debug':
-        logging.debug(message=message, exc_info=exc_info)
-    if level == 'Info':
-        logging.info(message=message, exc_info=exc_info)
-    if level == 'Error':
-        logging.error(message=message, exc_info=exc_info)
-    if level == 'Warning':
-        logging.warning(message=message, exc_info=exc_info)
-    if level == 'Critical':
-        logging.critical(message=message, exc_info=exc_info)
+def log_exception(exception, exc_info=True):
+    logging.exception(exception, exc_info=True)
 
 
 def log_into_file(answer_code=None, response=None, method_name='', level='Debug', request_dict=None, message='None'):

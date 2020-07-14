@@ -14,7 +14,8 @@ def handle_exceptions(function):
             except Exception:
                 attempt += 1
                 if attempt > 2:
-                    logger.log_exception(level='Critical')
+                    logger.log_exception(Exception, exc_info=True)
+# Todo: use handler in functions that can catch not handled errors
 
 
 def get_token(request_dict, token_password):
@@ -38,13 +39,9 @@ def send_request(request_dict, request_url):
     if server_answer.status_code == 200 and response["Success"] and response["ErrorCode"] == '0':
         return server_answer, response
     elif server_answer.status_code != 200:
-        raise WebError(f"HTTPS reason code is not successful. {server_answer}")
+        raise ConnectionError(f"HTTPS reason code is not successful. {server_answer}")
     elif not response["Success"] or response["ErrorCode"] != '0' or response["Message"] != 'OK':
         raise RequestError(f"Request is not successful. {response}")
-
-
-class WebError(Exception):
-    pass
 
 
 class RequestError(Exception):
