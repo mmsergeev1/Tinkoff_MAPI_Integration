@@ -4,10 +4,17 @@ import hashlib
 import json
 import requests
 
-test_terminal_key = 'TinkoffBankTest'
-test_environment_url = 'https://rest-api-test.tinkoff.ru/v2/'
-prod_environment_url = 'https://securepay.tinkoff.ru/v2/'
-test_terminal_token_password = 'TinkoffBankTest'
+
+def handle_exceptions(function):
+    def wrapper(*args, **kwargs):
+        attempt = 0
+        while True:
+            try:
+                function(*args, **kwargs)
+            except Exception:
+                attempt += 1
+                if attempt > 2:
+                    logger.log_exception(level='Critical')
 
 
 def get_token(request_dict, token_password):
@@ -49,15 +56,21 @@ class PaymentStatusError(Exception):
 
 
 class EACQ:
+
+    test_terminal_key = 'TinkoffBankTest'
+    test_environment_url = 'https://rest-api-test.tinkoff.ru/v2/'
+    prod_environment_url = 'https://securepay.tinkoff.ru/v2/'
+    test_terminal_token_password = 'TinkoffBankTest'
+
     def __init__(self):
-        self.terminal_key = ''
-        self.token_password = ''
-        self.receipt = {}
-        self.used_url = ''
-        self.data = {}
-        self.description = ""
-        self.status = 'None'
-        self.pay_type = 'O'
+        self.terminal_key = None
+        self.token_password = None
+        self.receipt = None
+        self.used_url = None
+        self.data = None
+        self.description = None
+        self.status = None
+        self.pay_type = None
 
     def set_status(self, new_status):
         self.status = new_status

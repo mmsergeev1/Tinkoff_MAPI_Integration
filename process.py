@@ -32,11 +32,14 @@ def send_eacq_init():
         return payment_id, get_state_response
 
     except MAPI_EACQ.WebError:
-        logger.log_into_file('Init', 'Error', message='Connection error')
+        logger.log_into_file('send_eacq_init', 'Error', message='Connection error')
+        logger.log_exception("Exception occurred", exc_info=True)
     except MAPI_EACQ.RequestError:
-        raise MAPI_EACQ.RequestError
+        logger.log_into_file('send_eacq_init', 'Error', message='Request was not successful')
+        logger.log_exception("Exception occurred", exc_info=True)
     except MAPI_EACQ.PaymentStatusError:
-        raise MAPI_EACQ.PaymentStatusError
+        logger.log_into_file('send_eacq_init', 'Error', message='Connection error')
+        logger.log_exception("Exception occurred", exc_info=True)
 
 
 def send_eacq_confirm(payment_id):
@@ -49,11 +52,14 @@ def send_eacq_confirm(payment_id):
         return confirm_response
 
     except MAPI_EACQ.WebError:
-        raise MAPI_EACQ.WebError
+        logger.log_into_file('send_eacq_confirm', 'Error', message='Connection error')
+        logger.log_exception("Exception occurred", exc_info=True)
     except MAPI_EACQ.RequestError:
-        raise MAPI_EACQ.RequestError
+        logger.log_into_file('send_eacq_confirm', 'Error', message='Request was not successful')
+        logger.log_exception("Exception occurred", exc_info=True)
     except MAPI_EACQ.PaymentStatusError:
-        raise MAPI_EACQ.PaymentStatusError
+        logger.log_into_file('send_eacq_confirm', 'Error', message='Connection error')
+        logger.log_exception("Exception occurred", exc_info=True)
 
 
 def send_eacq_cancel(payment_id):
@@ -65,8 +71,11 @@ def send_eacq_cancel(payment_id):
         return cancel_response
 
     except MAPI_EACQ.WebError:
-        raise MAPI_EACQ.WebError
+        logger.log_into_file('send_eacq_cancel', 'Error', message='Connection error')
+        logger.log_exception("Exception occurred", exc_info=True)
     except MAPI_EACQ.RequestError:
-        raise MAPI_EACQ.RequestError
+        logger.log_into_file('send_eacq_cancel', 'Error', message='Request was not successful')
+        logger.log_exception("Exception occurred", exc_info=True)
     except MAPI_EACQ.PaymentStatusError:
-        raise MAPI_EACQ.PaymentStatusError
+        logger.log_into_file('send_eacq_cancel', 'Error', message='Connection error')
+        logger.log_exception("Exception occurred", exc_info=True)
