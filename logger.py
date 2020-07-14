@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.DEBUG, filename=log_file_name, filemode='a',
 
 
 def log_exception(exception, exc_info=True):
-    logging.exception(exception, exc_info=True)
+    logging.exception(exception, exc_info=exc_info)
 
 
 def log_into_file(answer_code=None, response=None, method_name='', level='Debug', request_dict=None, message='None'):
