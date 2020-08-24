@@ -1,3 +1,8 @@
+"""
+An example of using the MAPI_EACQ class
+"""
+
+
 import logger
 import random
 import time
