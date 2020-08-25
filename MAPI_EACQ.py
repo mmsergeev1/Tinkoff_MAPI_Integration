@@ -17,7 +17,7 @@ def handle_exceptions(function):
                     logger.log_exception(Exception, exc_info=True)
 
 
-# Todo: use handler in functions that can catch not handled errors
+# Todo: use handler in functions that can catch, errors that are not handled
 
 
 def get_token(request_dict: dict, token_password: str) -> str:

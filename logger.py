@@ -3,7 +3,7 @@ import logging
 
 log_file_name = 'payment.log'
 logging.basicConfig(level=logging.DEBUG, filename=log_file_name, filemode='a',
-                        format='%(name)s - %(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+                        format='%(name)s - %(asctime)s.%(msecs)03d - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 
 def log_exception(exception, exc_info=True):
